@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Calculator</title>
+
+    <script src="https://npmcdn.com/react@15.3.0/dist/react.js"></script>
+    <script src="https://npmcdn.com/react-dom@15.3.0/dist/react-dom.js"></script>
+    <script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script>
+    <link rel="stylesheet" href="style.css" >
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+
+    const operations = ["+","-","*","/","=","CE"];
+    const digits = ["1","2","3","4","5","6","7","8","9","0"];
+    const output = document.getElementById('root');
+
+    const InputField = React.createClass({
+      getInitialState(){
+        return{inputState:[], result:""};
+      },
+      transfer(value, inputState=this.state.inputState.join("")){
+        if(value === "="){
+        this.setState({inputState:[],result: eval(inputState)});
+          return false;
+        } else
+        this.setState({inputState: [...this.state.inputState, value]});
+      },
+      calculate(str){
+        this.setState({result: str.join("")});
+      },
+      clearInput(operation){
+        if(operation === "CE")
+        this.setState({inputState: [], result:""});
+      },
+      render(){
+        let str = this.state.inputState.join("");
+        return(
+          <div className="inputField">
+              <input type="text" value={(this.state.result.length == 0)?str:this.state.result} />
+              <Digit dgts={digits} transferDigit={this.transfer} clear={this.isNewExpression} answer={this.state.result} />
+              <Operation btns={operations} transferOperation={this.transfer} toClear={this.clearInput} />
+          </div>
+        );
+      }
+    });
+
+    const Digit = React.createClass({
+      getInitialState(){
+        return{digitState:"", res:""};
+      },
+      onclickHandler(event){
+        if(this.props.answer.length == 0){
+            this.setState({digitState: event.target.innerHTML});
+            this.props.transferDigit(event.target.innerHTML);
+        }else{
+            this.setState({digitState: event.target.innerHTML});
+            this.props.transferDigit(event.target.innerHTML);
+        }
+        
+      },
+      render(){
+        const digs = this.props.dgts;
+        const element = digs.map((digit,index)=><button key={index} onClick={this.onclickHandler} className="button digit" >{digit}</button>);
+        return(
+            <div className="digitButtons">
+                {element}
+            </div>
+        );
+      }
+    });
+
+    const Operation = React.createClass({
+      getInitialState(){
+        return{buttonsState:""};
+      },
+      onclickHandler(event){
+        if(event.target.innerHTML ==="CE"){
+          this.props.toClear(event.target.innerHTML);
+          return false;
+        }
+        this.setState({buttonsState: event.target.innerHTML});
+        this.props.transferOperation(event.target.innerHTML);
+      },
+      render(){
+        const btnsList = this.props.btns;
+        const element = btnsList.map((operation,index)=><button onClick={this.onclickHandler} key={index} className="button operation">{operation}</button>);
+        return(
+            <div className="ariphButtons">
+                {element}
+            </div>
+        );
+      }
+    });
+
+    const Calculator = React.createClass({
+      render(){
+        return(
+          <div className="calculator">
+              <InputField />
+          </div>
+        );
+      }
+    });
+
+    ReactDOM.render(
+        <Calculator />,
+        output
+    );
+    </script>
+</body>
+</html>
